@@ -17,6 +17,7 @@ package com.dremio.iceberg.authmgr.oauth2.tokenexchange;
 
 import com.dremio.iceberg.authmgr.oauth2.OAuth2Config;
 import com.dremio.iceberg.authmgr.oauth2.agent.OAuth2AgentRuntime;
+import com.dremio.iceberg.authmgr.oauth2.config.TokenExchangeConfig.TokenSource;
 import com.dremio.iceberg.authmgr.tools.immutables.AuthManagerImmutable;
 import com.nimbusds.oauth2.sdk.token.TokenTypeURI;
 import com.nimbusds.oauth2.sdk.token.TypelessAccessToken;
@@ -29,6 +30,13 @@ import org.immutables.value.Value;
 public abstract class SubjectTokenSupplier extends AbstractTokenSupplier {
 
   public static SubjectTokenSupplier create(OAuth2Config config, OAuth2AgentRuntime runtime) {
+    if (config.getTokenExchangeConfig().getSubjectTokenSource()
+        == TokenSource.KUBERNETES_IDENTITY_TOKEN) {
+      return ImmutableKubernetesIdentityTokenSupplier.builder()
+          .mainConfig(config)
+          .runtime(runtime)
+          .build();
+    }
     return ImmutableSubjectTokenSupplier.builder().mainConfig(config).runtime(runtime).build();
   }
 

@@ -42,6 +42,7 @@ public interface TokenExchangeConfig {
 
   String SUBJECT_TOKEN = "subject-token";
   String SUBJECT_TOKEN_TYPE = "subject-token-type";
+  String SUBJECT_TOKEN_SOURCE = "subject-token-source";
   String ACTOR_TOKEN = "actor-token";
   String ACTOR_TOKEN_TYPE = "actor-token-type";
   String REQUESTED_TOKEN_TYPE = "requested-token-type";
@@ -49,6 +50,8 @@ public interface TokenExchangeConfig {
   String AUDIENCE = "audience";
 
   String DEFAULT_TOKEN_TYPE = "urn:ietf:params:oauth:token-type:access_token";
+  String DEFAULT_TOKEN_SOURCE = "config";
+  String KUBERNETES_IDENTITY_TOKEN_SOURCE = "kubernetes-identity-token";
 
   /**
    * The subject token to exchange.
@@ -69,6 +72,10 @@ public interface TokenExchangeConfig {
   @WithName(SUBJECT_TOKEN_TYPE)
   @WithDefault(DEFAULT_TOKEN_TYPE)
   TokenTypeURI getSubjectTokenType();
+
+  @WithName(SUBJECT_TOKEN_SOURCE)
+  @WithDefault(DEFAULT_TOKEN_SOURCE)
+  TokenSource getSubjectTokenSource();
 
   /**
    * The actor token to exchange.
@@ -175,5 +182,18 @@ public interface TokenExchangeConfig {
 
   default void validate() {
     // No validation needed
+  }
+
+  enum TokenSource {
+    KUBERNETES_IDENTITY_TOKEN,
+    CONFIG;
+
+    public static TokenSource from(String value) {
+      if (KUBERNETES_IDENTITY_TOKEN_SOURCE.equalsIgnoreCase(value)) {
+        return KUBERNETES_IDENTITY_TOKEN;
+      } else {
+        return CONFIG;
+      }
+    }
   }
 }
